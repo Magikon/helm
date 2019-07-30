@@ -11,7 +11,7 @@ ENV KUBEVAL_VERSION=$KUBEVAL_VERSION
 ENV HELM_VERSION=$HELM_VERSION
 ENV CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION
 
-ENV PATH PATH=/google-cloud-sdk/bin:$PATH
+ENV PATH=/google-cloud-sdk/bin:$PATH
 
 RUN apk --update add --no-cache ca-certificates curl python py-crcmod bash libc6-compat openssh-client git gnupg jq gettext
 
