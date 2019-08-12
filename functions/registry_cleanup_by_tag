@@ -1,0 +1,28 @@
+#!/bin/bash
+set -eo pipefail
+
+if [[ "$#" -eq 0 || "${1}" == '-h' || "${1}" == '--help' ]]
+then
+  cat >&2 <<"EOF"
+USAGE:
+registry_cleanup <registry_uri> <tag_name>
+
+EXAMPLE:
+registry_cleanup gcr.io/project-id/hello-folder latest
+EOF
+  exit 0
+fi
+
+registry_uri=${1}
+tag_name=${2}
+
+for digest in $(gcloud container images list-tags ${registry_uri} --filter="tags:${tag_name}" --format='get(digest)');
+do
+  (
+      set -x
+      gcloud container images delete --quiet --force-delete-tags "${registry_uri}@${digest}"
+  )
+done
+
+
+

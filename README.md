@@ -1,14 +1,16 @@
 # helm, gcloud, docker, kubeval
-
-### To know the latest releases
-    HELM_VERSION=$(curl -s https://github.com/helm/helm/releases | sed -n '/Latest release<\/a>/,$p' | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 | awk '{print substr($1,2); }')
-    KUBEVAL_VERSION=$(curl -s https://github.com/instrumenta/kubeval/releases/ | sed -n '/Latest release<\/a>/,$p' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-    CLOUD_SDK_VERSION=$(curl -s https://github.com/google-cloud-sdk/google-cloud-sdk/releases | sed -n '/Releases<\/a>/,$p' | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 | awk '{print substr($1,2); }')
-    DOCKER_VERSION=$(curl -s https://github.com/docker/docker-ce/releases | sed -n '/Latest release<\/a>/,$p' | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 | awk '{print substr($1,2); }')
     
-### for build use
-    docker build -t yourtag --build-arg HELM_VERSION=v$HELM_VERSION --build-arg KUBEVAL_VERSION=$KUBEVAL_VERSION --build-arg CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION --build-arg DOCKER_VERSION=$DOCKER_VERSION .
-    docker build -f DockerfileAlpine -t yourtag-alpine --build-arg HELM_VERSION=v$HELM_VERSION --build-arg KUBEVAL_VERSION=$KUBEVAL_VERSION --build-arg DOCKER_VERSION=$DOCKER_VERSION .
+### build
+    HELM_VERSION=2.14.3
+    DOCKER_VERSION=19.03.1
+    CLOUD_SDK_VERSION=257.0.0
+    KUBEVAL_VERSION=0.13.0
+    ALPINE_VERSION=3.10.1
+	
+    chmod -R +x ./functions/
+    docker build -t $DOCKER_IMAGE_TAG_VERSION --build-arg HELM_VERSION=v$HELM_VERSION --build-arg KUBEVAL_VERSION=$KUBEVAL_VERSION --build-arg CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION --build-arg DOCKER_VERSION=$DOCKER_VERSION --build-arg ALPINE_VERSION=$ALPINE_VERSION .
+    docker build -f DockerfileAlpine -t $DOCKER_IMAGE_TAG_VERSION-alpine --build-arg HELM_VERSION=v$HELM_VERSION --build-arg KUBEVAL_VERSION=$KUBEVAL_VERSION --build-arg DOCKER_VERSION=$DOCKER_VERSION .
+ 
     
 ### Images can be found here 
     https://cloud.docker.com/repository/docker/mikayel/helm

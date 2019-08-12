@@ -1,0 +1,51 @@
+#!/bin/bash
+set -eo pipefail
+
+if [[ "$#" -eq 0 || "${1}" == '-h' || "${1}" == '--help' ]]
+then
+  cat >&2 <<"EOF"
+USAGE:
+registry_cleanup <registry_uri> <protect_days> <protect_quantity>
+
+EXAMPLE:
+registry_cleanup gcr.io/project-id/hello-folder 10 10
+or
+registry_cleanup gcr.io/project-id/hello-folder
+without <protect_days> <protect_quantity> then
+protect_days=10 protect_quantity=10
+EOF
+  exit 0
+fi
+
+deleted=0
+registry_uri=${1}
+protect_days=${2}
+protect_quantity=${3}
+
+if [[ "$#" -ne 3 ]]; then
+    protect_days=10
+    protect_quantity=10
+fi
+
+
+older_than=$(date -d@"$(( `date +%s`-${protect_days}*24*3600 ))" +"%Y-%m-%d")
+echo "Delete images older than '${older_than}'"
+
+count="$(gcloud container images list-tags ${registry_uri} | grep -v DIGEST | wc -l)"
+echo "Images count ${count}"
+
+for digest in $(gcloud container images list-tags ${registry_uri} --sort-by=~TIMESTAMP --filter="timestamp.datetime < '${older_than}'" --format='get(digest)');
+do
+  if [[ "$(( $count - $deleted ))" -gt "${protect_quantity}" ]]; then
+     let deleted+=1
+     (
+        set -x
+        gcloud container images delete --quiet --force-delete-tags "${registry_uri}@${digest}"
+     )
+  fi
+done
+
+echo "Deleted ${deleted} images in ${registry_uri}, remaining $(( $count - $deleted ))"
+
+
+

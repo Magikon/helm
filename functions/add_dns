@@ -1,0 +1,23 @@
+#!/bin/bash
+
+zone_id=$(get_zone_identifier ${1} ${2} ${3} ${4})
+if [[ -z ${zone_id} ]]; then
+    echo -e "[Cloudflare DDNS] Zone identifier not found for zone '${1}'"
+    exit 1
+fi
+
+record_id=$(get_record_identifier ${1} ${2} ${3} ${4} ${zone_id})
+if [[ -z ${record_id} ]]; then
+    response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records" -H "X-Auth-Email: ${3}" -H "X-Auth-Key: ${4}" -H "Content-Type: application/json" --data "{\"type\":\"CNAME\",\"name\":\"${1}\",\"content\":\"${2}\",\"proxied\":true}" )
+    if [[ ${response} == *"\"success\":false"* ]]; then
+        echo -e "[Cloudflare DDNS] Add DNS record '${1}' for '${1}' failed. DUMPING RESULTS:\n${response}"
+        exit 1
+    else
+        echo -e "[Cloudflare DDNS] Add DNS record ${1} for '${2}' complete. DUMPING RESULTS:\n${response}"
+    fi
+else
+    echo -e "[Cloudflare DDNS] Add DNS record ${1} for '${2}' already exists."
+fi
+
+
+

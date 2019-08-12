@@ -1,0 +1,19 @@
+#!/bin/bash
+
+response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${5}/dns_records?name=${1}.${2}&type=CNAME" -H "X-Auth-Email: ${3}" -H "X-Auth-Key: ${4}" -H "Content-Type: application/json")
+
+if [[ ${response} == *"\"success\":false"* ]]; then
+  echo -e "[Cloudflare DDNS] Request record identifier 'https://api.cloudflare.com/client/v4/zones/${5}/dns_records?name=${1}.${2}&type=CNAME'"
+  echo -e "[Cloudflare DDNS] Get record identifier for '${1}' in zone ${2} failed. DUMPING RESULTS:\n${response}"
+  exit 1
+fi
+
+identifier=$(echo ${response} | sed 's/,/\n/g' | awk -F'"' '/id/{print $6}' | head -1)
+if [[ -z ${identifier} ]]; then
+  echo ""
+else
+  echo "${identifier}"
+fi
+
+
+
