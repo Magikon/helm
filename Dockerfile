@@ -17,28 +17,29 @@ ENV DOCKER_CLI_EXPERIMENTAL=enabled
 ENV PATH=$PATH:/google-cloud-sdk/bin
 
 COPY --from=mikayel/cloudflare-lite-api /usr/local/bin/cflite /usr/local/bin/cflite
+
 COPY ./functions/. /usr/local/bin/
 
-RUN chmod +x /usr/local/bin/*; apk --update add --no-cache ca-certificates curl python py-crcmod bash libc6-compat openssh-client git gnupg jq gettext findutils tar gzip
+RUN apk --update add --no-cache ca-certificates curl jq gettext findutils tar gzip bash python git openssh-client py-crcmod libc6-compat gnupg
 
-RUN curl -L https://github.com/instrumenta/kubeval/releases/download/${KUBEVAL_VERSION}/kubeval-linux-amd64.tar.gz | tar xz -C /tmp && mv /tmp/kubeval /usr/local/bin/kubeval
+RUN curl -L https://github.com/instrumenta/kubeval/releases/download/${KUBEVAL_VERSION}/kubeval-linux-amd64.tar.gz | tar xz -C /tmp && mv /tmp/kubeval /usr/local/bin/kubeval && find /tmp/* | xargs rm -f
+
+COPY --from=dockerbase /usr/local/bin/docker /usr/local/bin/docker
 
 RUN curl -L https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz && mv linux-amd64/helm /usr/local/bin/helm && \
     rm -rf linux-amd64 && helm init --client-only && \
     helm plugin install https://github.com/viglesiasce/helm-gcs > /dev/null 2>&1 && \
     helm plugin install https://github.com/databus23/helm-diff > /dev/null 2>&1 && \
-    helm plugin install https://github.com/rimusz/helm-tiller > /dev/null 2>&1 && rm -rf /tmp/*
-
-COPY --from=dockerbase /usr/local/bin/docker /usr/local/bin/docker
+    helm plugin install https://github.com/rimusz/helm-tiller > /dev/null 2>&1 && find /tmp/* | xargs rm -fr
 
 RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
-    google-cloud-sdk/install.sh --path-update=true --bash-completion=true --additional-components kubectl alpha beta > /dev/null 2>&1 && \
+    google-cloud-sdk/bin/gcloud --quiet components install kubectl alpha beta > /dev/null 2>&1 && \
     google-cloud-sdk/bin/gcloud --quiet config set core/disable_usage_reporting true > /dev/null 2>&1 && \
     google-cloud-sdk/bin/gcloud --quiet config set component_manager/disable_update_check true > /dev/null 2>&1 && \
     google-cloud-sdk/bin/gcloud --quiet config set metrics/environment github_docker_image > /dev/null 2>&1 && \
     find /google-cloud-sdk -type d -name "*backup*" | xargs rm -fr && \
-    rm -f /google-cloud-sdk/bin/kubectl.* 
-    
+    rm -f /google-cloud-sdk/bin/kubectl.*
+
 VOLUME ["/root/.config"]

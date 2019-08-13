@@ -9,13 +9,14 @@ ARG HELM_VERSION=v2.14.3
 ENV KUBEVAL_VERSION=$KUBEVAL_VERSION
 ENV HELM_VERSION=$HELM_VERSION
 ENV DOCKER_CLI_EXPERIMENTAL=enabled
-    
+
 COPY --from=mikayel/cloudflare-lite-api /usr/local/bin/cflite /usr/local/bin/cflite
+
 COPY ./functions/. /usr/local/bin/
 
-RUN chmod +x /usr/local/bin/*; apk --update add --no-cache jq gettext ca-certificates findutils tar gzip
+RUN apk --update add --no-cache jq gettext ca-certificates findutils tar gzip
 
-RUN curl -L https://github.com/instrumenta/kubeval/releases/download/${KUBEVAL_VERSION}/kubeval-linux-amd64.tar.gz | tar xz -C /tmp && mv /tmp/kubeval /usr/local/bin/kubeval
+RUN curl -L https://github.com/instrumenta/kubeval/releases/download/${KUBEVAL_VERSION}/kubeval-linux-amd64.tar.gz | tar xz -C /tmp && mv /tmp/kubeval /usr/local/bin/kubeval && rm -rf /tmp/*
 
 RUN curl -L https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz && mv linux-amd64/helm /usr/local/bin/helm && \
     rm -rf linux-amd64 && helm init --client-only && \
@@ -24,4 +25,5 @@ RUN curl -L https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xv
     helm plugin install https://github.com/rimusz/helm-tiller > /dev/null 2>&1 && rm -rf /tmp/*
 
 COPY --from=dockerbase /usr/local/bin/docker /usr/local/bin/docker
+
 COPY --from=google/cloud-sdk /usr/bin/kubectl /usr/bin/kubectl
