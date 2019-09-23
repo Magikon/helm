@@ -12,8 +12,7 @@ do
     if [[ -z ${record_id} ]]; then
         echo -e "Record '${1}' not exists"
     else
-        response=$(curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${record_id}" -H "X-Auth-Email: ${3}" -H "X-Auth-Key: ${4}" -H 
-"Content-Type: application/json")
+        response=$(curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${record_id}" -H "X-Auth-Email: ${3}" -H "X-Auth-Key: ${4}" -H "Content-Type: application/json")
         if [[ ${response} == *"\"success\":false"* ]]; then
           echo -e "[Cloudflare DDNS] Delete DNS record ${1} for ${i} failed. DUMPING RESULTS:\n${response}"
           exit 1

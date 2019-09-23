@@ -1,0 +1,15 @@
+#!/bin/bash
+
+FULLDOMAIN=""
+for s in $(echo "$1" | tr "," "\n");do
+if [ "$s" == "www" ]; then
+  for i in $(echo "$2" | tr "," "\n"); do
+    FULLDOMAIN+=","$i",www."$i
+  done
+else
+  for i in $(echo "$2" | tr "," "\n"); do
+    FULLDOMAIN+=","$s"."$i
+  done
+fi
+done
+echo "${FULLDOMAIN:1}"

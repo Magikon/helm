@@ -10,8 +10,7 @@ do
     
     record_id=$(get_record_identifier ${1} ${i} ${3} ${4} ${zone_id})
     if [[ -z ${record_id} ]]; then
-        response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records" -H "X-Auth-Email: ${3}" -H "X-Auth-Key: ${4}" -H "Content-Type: 
-application/json" --data "{\"type\":\"CNAME\",\"name\":\"${1}\",\"content\":\"${i}\",\"proxied\":true}" )
+        response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records" -H "X-Auth-Email: ${3}" -H "X-Auth-Key: ${4}" -H "Content-Type: application/json" --data "{\"type\":\"CNAME\",\"name\":\"${1}\",\"content\":\"${i}\",\"proxied\":true}" )
         if [[ ${response} == *"\"success\":false"* ]]; then
             echo -e "[Cloudflare DDNS] Add DNS record '${1}' for '${1}' failed. DUMPING RESULTS:\n${response}"
             exit 1
