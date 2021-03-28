@@ -1,9 +1,11 @@
 #!/bin/bash
+zon=${1}
+bar=${2}
 
-response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=${2}" -H "X-Auth-Email: ${3}" -H "X-Auth-Key: ${4}" -H "Content-Type: application/json")
+response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=${zon}" -H "Authorization: Bearer ${bar}" -H "Content-Type: application/json")
 if [[ ${response} == *"\"success\":false"* ]]; then
-  echo -e "[Cloudflare DDNS] Request zone identifier 'https://api.cloudflare.com/client/v4/zones?name=${2}'"
-  echo -e "[Cloudflare DDNS] Get identifier for zone '${2}' failed. DUMPING RESULTS:\n${response}"
+  echo -e "[Cloudflare DDNS] Request zone identifier 'https://api.cloudflare.com/client/v4/zones?name=${zon}'"
+  echo -e "[Cloudflare DDNS] Get identifier for zone '${zon}' failed. DUMPING RESULTS:\n${response}"
   exit 1
 fi
 

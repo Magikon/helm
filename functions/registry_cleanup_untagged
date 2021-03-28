@@ -17,7 +17,7 @@ fi
 deleted=0
 registry_uri=${1}
 
-for digest in $(gcloud container images list-tags ${registry_uri} --sort-by=~TIMESTAMP --filter="-tags:*" --format='get(digest)');
+for digest in $(gcloud container images list-tags ${registry_uri} --sort-by=TIMESTAMP --filter="-tags:*" --format='get(digest)');
 do
   let deleted+=1
   (

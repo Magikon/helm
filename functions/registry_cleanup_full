@@ -24,7 +24,7 @@ deleted=0
 
 ###############untaged######################
 
-for digest in $(gcloud container images list-tags ${registry_uri} --sort-by=~TIMESTAMP --filter="-tags:*" --format='get(digest)');
+for digest in $(gcloud container images list-tags ${registry_uri} --sort-by=TIMESTAMP --filter="-tags:*" --format='get(digest)');
 do
   let deleted+=1
   (
@@ -45,7 +45,7 @@ echo "Delete images older than '${older_than}'"
 count="$(gcloud container images list-tags ${registry_uri} | grep -v DIGEST | wc -l)"
 echo "Images count ${count}"
 
-for digest in $(gcloud container images list-tags ${registry_uri} --sort-by=~TIMESTAMP --filter="timestamp.datetime < '${older_than}'" --format='get(digest)');
+for digest in $(gcloud container images list-tags ${registry_uri} --sort-by=TIMESTAMP --filter="timestamp.datetime < '${older_than}'" --format='get(digest)');
 do
   if [[ "$(( $count - $deleted ))" -gt "${protect_quantity}" ]]; then
      let deleted+=1

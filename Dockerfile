@@ -1,15 +1,13 @@
-ARG DOCKER_VERSION=19.03.2
-ARG ALPINE_VERSION=3.10.2
+ARG DOCKER_VERSION=20.10.5
+ARG ALPINE_VERSION=3.13.3
 FROM docker:${DOCKER_VERSION} as dockerbase
 
 ARG ALPINE_VERSION=${ALPINE_VERSION}
 FROM alpine:${ALPINE_VERSION}
 
-ARG KUBEVAL_VERSION=0.14.0
-ARG HELM_VERSION=v2.14.3
-ARG CLOUD_SDK_VERSION=263.0.0
+ARG HELM_VERSION=v3.5.3
+ARG CLOUD_SDK_VERSION=333.0.0
 
-ENV KUBEVAL_VERSION=${KUBEVAL_VERSION}
 ENV HELM_VERSION=${HELM_VERSION}
 ENV CLOUD_SDK_VERSION=${CLOUD_SDK_VERSION}
 ENV DOCKER_CLI_EXPERIMENTAL=enabled
@@ -20,22 +18,20 @@ COPY --from=mikayel/cloudflare-lite-api /usr/local/bin/cflite /usr/local/bin/cfl
 
 COPY ./functions/. /usr/local/bin/
 
-RUN apk --update add --no-cache ca-certificates curl jq gettext findutils tar gzip bash python git openssh-client py-crcmod libc6-compat gnupg
-
-RUN curl -L https://github.com/instrumenta/kubeval/releases/download/${KUBEVAL_VERSION}/kubeval-linux-amd64.tar.gz | tar xz -C /tmp && mv /tmp/kubeval /usr/local/bin/kubeval && find /tmp/* | xargs rm -f
+RUN apk --update add --no-cache ca-certificates curl jq gettext findutils tar gzip bash python3 git openssh-client py-crcmod libc6-compat gnupg \
+    && ln -sf python3 /usr/bin/python && python3 -m ensurepip && pip3 install --no-cache --upgrade pip setuptools
 
 COPY --from=dockerbase /usr/local/bin/docker /usr/local/bin/docker
 
-RUN curl -L https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz && mv linux-amd64/helm /usr/local/bin/helm && \
-    rm -rf linux-amd64 && helm init --client-only && \
+RUN curl -L https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz && mv linux-amd64/helm /usr/local/bin/helm && rm -rf linux-amd64 && \
     helm plugin install https://github.com/viglesiasce/helm-gcs > /dev/null 2>&1 && \
     helm plugin install https://github.com/databus23/helm-diff > /dev/null 2>&1 && \
-    helm plugin install https://github.com/rimusz/helm-tiller > /dev/null 2>&1 && find /tmp/* | xargs rm -fr
+    helm plugin install https://github.com/thynquest/helm-pack.git > /dev/null 2>&1 && find /tmp/* | xargs rm -fr
 
 RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
-    google-cloud-sdk/bin/gcloud --quiet components install kubectl alpha beta > /dev/null 2>&1 && \
+    google-cloud-sdk/bin/gcloud --quiet components install kubectl beta kustomize gsutil> /dev/null 2>&1 && \
     google-cloud-sdk/bin/gcloud --quiet config set core/disable_usage_reporting true > /dev/null 2>&1 && \
     google-cloud-sdk/bin/gcloud --quiet config set component_manager/disable_update_check true > /dev/null 2>&1 && \
     google-cloud-sdk/bin/gcloud --quiet config set metrics/environment github_docker_image > /dev/null 2>&1 && \

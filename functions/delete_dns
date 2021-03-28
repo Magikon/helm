@@ -1,23 +1,29 @@
 #!/bin/bash
+rec=${1}
+zon=${2}
+eml=${3}
+bar=${4}
 
-for i in $(echo $2 | tr "," "\n")
+for zonN in $(echo ${zon} | tr "," "\n")
 do
-    zone_id=$(get_zone_identifier ${1} ${i} ${3} ${4})
+    zone_id=$(get_zone_identifier ${zonN} ${bar})
     if [[ -z ${zone_id} ]]; then
-        echo -e "[Cloudflare DDNS] Zone identifier not found for zone '${1}'"
+        echo -e "[Cloudflare DDNS] Zone identifier not found for zone '${zonN}'"
         exit 1
     fi
-    
-    record_id=$(get_record_identifier ${1} ${i} ${3} ${4} ${zone_id})
+
+    record_id=$(get_record_identifier ${rec} ${zonN} ${bar} ${zone_id})
     if [[ -z ${record_id} ]]; then
-        echo -e "Record '${1}' not exists"
+        echo -e "Record '${rec}' not exists"
     else
-        response=$(curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${record_id}" -H "X-Auth-Email: ${3}" -H "X-Auth-Key: ${4}" -H "Content-Type: application/json")
+        response=$(curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${record_id}" -H "Authorization: Bearer ${bar}" -H "Content-Type: application/json")
         if [[ ${response} == *"\"success\":false"* ]]; then
-          echo -e "[Cloudflare DDNS] Delete DNS record ${1} for ${i} failed. DUMPING RESULTS:\n${response}"
+          echo -e "[Cloudflare DDNS] Delete DNS record ${rec} for ${zonN} failed. DUMPING RESULTS:\n${response}"
           exit 1
         else
-          echo -e "[Cloudflare DDNS] Delete DNS record ${1} for ${i} complete. DUMPING RESULTS:\n${response}"
+          echo -e "[Cloudflare DDNS] Delete DNS record ${rec} for ${zonN} complete. DUMPING RESULTS:\n${response}"
         fi
     fi
 done
+
+

@@ -1,16 +1,19 @@
 #!/bin/bash
+zon=${1}
+eml=${2}
+bar=${3}
 
-for i in $(echo $1 | tr "," "\n")
+for zonN in $(echo ${zon} | tr "," "\n")
 do
-    zone_id=$(get_zone_identifier ${i} ${2} ${3})
+    zone_id=$(get_zone_identifier ${zonN} ${bar})
     if [[ -z ${zone_id} ]]; then
-        echo -e "[Cloudflare DDNS] Zone identifier not found for zone '${i}'"
+        echo -e "[Cloudflare DDNS] Zone identifier not found for zone '${zonN}'"
     else
-        response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${zone_id}/purge_cache" -H "X-Auth-Email: ${2}" -H "X-Auth-Key: ${3}" -H "Content-Type: application/json" --data "{\"purge_everything\":true}" )
+        response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${zone_id}/purge_cache" -H "Authorization: Bearer ${bar}" -H "Content-Type: application/json" --data "{\"purge_everything\":true}" )
         if [[ ${response} == *"\"success\":false"* ]]; then
-            echo -e "[Cloudflare DDNS] Cache purge failed for zone ${i}. DUMPING RESULTS:\n${response}\n"
+            echo -e "[Cloudflare DDNS] Cache purge failed for zone ${zonN}. DUMPING RESULTS:\n${response}\n"
         else
-            echo -e "[Cloudflare DDNS] Cache purge done for zone ${i}."
+            echo -e "[Cloudflare DDNS] Cache purge done for zone ${zonN}."
         fi
     fi
 done

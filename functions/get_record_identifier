@@ -1,10 +1,14 @@
 #!/bin/bash
+rec=${1}
+zon=${2}
+bar=${3}
+zon_id=${4}
 
-response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${5}/dns_records?name=${1}.${2}&type=CNAME" -H "X-Auth-Email: ${3}" -H "X-Auth-Key: ${4}" -H "Content-Type: application/json")
+response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${zon_id}/dns_records?name=${rec}.${zon}&type=CNAME" -H "Authorization: Bearer ${bar}" -H "Content-Type: application/json")
 
 if [[ ${response} == *"\"success\":false"* ]]; then
-  echo -e "[Cloudflare DDNS] Request record identifier 'https://api.cloudflare.com/client/v4/zones/${5}/dns_records?name=${1}.${2}&type=CNAME'"
-  echo -e "[Cloudflare DDNS] Get record identifier for '${1}' in zone ${2} failed. DUMPING RESULTS:\n${response}"
+  echo -e "[Cloudflare DDNS] Request record identifier 'https://api.cloudflare.com/client/v4/zones/${zon_id}/dns_records?name=${rec}.${zon}&type=CNAME'"
+  echo -e "[Cloudflare DDNS] Get record identifier for '${rec}' in zone ${zon} failed. DUMPING RESULTS:\n${response}"
   exit 1
 fi
 
