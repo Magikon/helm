@@ -1,0 +1,25 @@
+#!/usr/local/bin/bash
+declare -a v1=(0 0 0 0)
+declare -a v2=(0 0 0 0)
+
+IFS='.' read -ra var1 <<< "$1"
+IFS='.' read -ra var2 <<< "$2"
+
+let comp=0
+
+for i in "${!var1[@]}";do v1[$i]=${var1[$i]};done
+for i in "${!var2[@]}";do v2[$i]=${var2[$i]};done
+
+for i in {0..3}
+do
+    if [ ${v1[$i]} -lt ${v2[$i]} ]
+    then
+        comp=1
+        break
+    elif [ ${v1[$i]} -gt ${v2[$i]} ]
+    then
+        comp=0
+        break
+    fi
+done
+echo $comp
