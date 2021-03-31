@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 declare -a v1=(0 0 0 0)
 declare -a v2=(0 0 0 0)
 
@@ -18,7 +18,7 @@ do
         break
     elif [ ${v1[$i]} -gt ${v2[$i]} ]
     then
-        comp=0
+        comp=-1
         break
     fi
 done
