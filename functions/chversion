@@ -7,8 +7,8 @@ IFS='.' read -ra var2 <<< "$2"
 
 let comp=0
 
-for i in "${!var1[@]}";do v1[$i]=${var1[$i]};done
-for i in "${!var2[@]}";do v2[$i]=${var2[$i]};done
+for i in "${!var1[@]}";do t=${var1[$i]};v1[$i]="${t//[!0-9]/}";done
+for i in "${!var2[@]}";do t=${var2[$i]};v2[$i]="${t//[!0-9]/}";done
 
 for i in {0..3}
 do
