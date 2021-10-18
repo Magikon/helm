@@ -1,15 +1,13 @@
-ARG DOCKER_VERSION=20.10.5
-ARG ALPINE_VERSION=3.13.3
+ARG DOCKER_VERSION=latest
+ARG ALPINE_VERSION=latest
 FROM docker:${DOCKER_VERSION} as dockerbase
 
 ARG ALPINE_VERSION=${ALPINE_VERSION}
 FROM alpine:${ALPINE_VERSION}
 
-ARG HELM_VERSION=v3.5.3
-ARG CLOUD_SDK_VERSION=333.0.0
+ARG HELM_VERSION=v3.7.0
 
 ENV HELM_VERSION=${HELM_VERSION}
-ENV CLOUD_SDK_VERSION=${CLOUD_SDK_VERSION}
 ENV DOCKER_CLI_EXPERIMENTAL=enabled
 
 ENV PATH=$PATH:/google-cloud-sdk/bin
@@ -28,9 +26,8 @@ RUN curl -L https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xv
     helm plugin install https://github.com/databus23/helm-diff > /dev/null 2>&1 && \
     helm plugin install https://github.com/thynquest/helm-pack.git > /dev/null 2>&1 && find /tmp/* | xargs rm -fr
 
-RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
-    tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
-    rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+RUN curl -O https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz && \
+    tar xzf google-cloud-sdk.tar.gz && rm google-cloud-sdk.tar.gz && \
     google-cloud-sdk/bin/gcloud --quiet components install kubectl beta kustomize gsutil> /dev/null 2>&1 && \
     google-cloud-sdk/bin/gcloud --quiet config set core/disable_usage_reporting true > /dev/null 2>&1 && \
     google-cloud-sdk/bin/gcloud --quiet config set component_manager/disable_update_check true > /dev/null 2>&1 && \
