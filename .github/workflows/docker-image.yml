@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Get latest tag
+    - name: Set tag
       run: |
-        echo "TAG_NAME=$(git describe --tag --abbrev=0 2>/dev/null || echo v1.0.0)" >> $GITHUB_ENV
+        echo "TAG=v3.7.2" >> $GITHUB_ENV
       id: latest-tag
     - name: Login to DockerHub
       uses: docker/login-action@v1 
@@ -27,4 +27,4 @@ jobs:
         context: .
         file: Dockerfile
         push: true
-        tags: mikayel/helm:${{ env.TAG_NAME }}
+        tags: mikayel/helm:${{ env.TAG }}
