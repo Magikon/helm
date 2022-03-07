@@ -11,10 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set tag
       run: |
         echo "TAG=v3.7.2" >> $GITHUB_ENV
       id: latest-tag
+    - uses: paulhatch/semantic-version@v4.0.2
+      with:
+        tag_prefix: "v"
+        # namespace: hello
+        bump_each_commit: true
     - name: Login to DockerHub
       uses: docker/login-action@v1 
       with:
